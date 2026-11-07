@@ -438,7 +438,13 @@ public class SettingsActivity extends Activity {
         catch (ActivityNotFoundException | SecurityException ex) { toast(tx.get(R.string.screen_cant_start)); }
     }
 
-    void toast(String msg) { Toast.makeText(this, msg, Toast.LENGTH_LONG).show(); }
+    Toast shownToast;   // the settings message on screen; the next one replaces it instead of waiting behind it (#118)
+
+    void toast(String msg) {
+        if (shownToast != null) shownToast.cancel();
+        shownToast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+        shownToast.show();
+    }
 
     /** The reset's confirmation: its scope above Cancel and Reset, with the focus on Cancel. */
     void openResetPanel() {
@@ -540,15 +546,22 @@ public class SettingsActivity extends Activity {
     /** Automatic without a TV location: the weather falls back to the city, and the message names it. */
     void toastNoTvLocation() { toast(tx.get(R.string.location_no_tv, cityLabel(Config.load(this)))); }
 
-    /** The city search: one text field over the panel; its Search runs the search and Cancel writes nothing. */
-    void openSearchDialog() {
+    /**
+     * The city search: one text field over the panel; its Search runs the search and Cancel writes nothing. After a
+     * refused search it opens again holding what was typed, so a typo or a missing connection costs no retyping, with
+     * why it was refused written in the dialog itself: a toast would sit under the TV keyboard, unseen (#118).
+     */
+    void openSearchDialog(String typed, String refusal) {
         EditText input = new EditText(this);
         input.setSingleLine(true);
         input.setHint(tx.get(R.string.location_search_hint));
+        input.setText(typed);
+        input.setSelection(input.length());
         input.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         input.setPadding(dp(24), dp(8), dp(24), dp(8));
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(tx.get(R.string.location_search))
+                .setMessage(refusal)   // null on the first opening: no message line
                 .setView(input)
                 .setPositiveButton(tx.get(R.string.location_search_go), (d, which) -> searchCity(input.getText().toString()))
                 .setNegativeButton(tx.get(R.string.reset_cancel), null)
@@ -565,7 +578,7 @@ public class SettingsActivity extends Activity {
     /** Searches Open-Meteo for the typed city; every refusal says so and writes nothing. */
     void searchCity(String typed) {
         final String query = typed == null ? "" : typed.trim();
-        if (!CitySearch.searchable(query)) { toast(tx.get(R.string.location_short)); return; }
+        if (!CitySearch.searchable(query)) { openSearchDialog(query, tx.get(R.string.location_short)); return; }
         toast(tx.get(R.string.location_searching));
         final String language = tx.language;
         new Thread(() -> {
@@ -575,8 +588,9 @@ public class SettingsActivity extends Activity {
             final List<CitySearch.City> results = found;
             runOnUiThread(() -> {
                 if (isFinishing()) return;   // the panel is going away: nothing left to show
-                if (results == null) { toast(tx.get(R.string.location_failed)); return; }
-                if (results.isEmpty()) { toast(tx.get(R.string.location_none, query)); return; }
+                if (shownToast != null) shownToast.cancel();   // the answer is here: "Searching…" has nothing left to say
+                if (results == null) { openSearchDialog(query, tx.get(R.string.location_failed)); return; }
+                if (results.isEmpty()) { openSearchDialog(query, tx.get(R.string.location_none, query)); return; }
                 showCities(query, results);
             });
         }).start();
@@ -632,7 +646,7 @@ public class SettingsActivity extends Activity {
                 Row r = panelRow; int i = panelIdx; closePanel();
                 if (r == resetRow) { resetChoice(i); return; }
                 if (r == citiesRow) { chooseCity(i); return; }   // a place to choose, not a value of the row
-                if (r == weatherRow && i == WEATHER_SEARCH) { openSearchDialog(); return; }
+                if (r == weatherRow && i == WEATHER_SEARCH) { openSearchDialog("", null); return; }
                 boolean saved = persist(r, i);
                 if (r == hiddenRow) updateHiddenRow(Config.load(this).hidden.size());
                 if (saved && r == weatherRow) weatherLocationChosen(i);
