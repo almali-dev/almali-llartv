@@ -127,6 +127,25 @@ public class WeatherTest {
         assertFalse(w.isFor(Config.DEFAULT_LAT, Config.DEFAULT_LON));   // Barcelona is another place
     }
 
+    @Test public void theCacheStoresThePlaceAtAboutAKilometreOnly() throws Exception {
+        // The cache is in external storage, readable by other apps on Android 9 and 10, and in automatic the place
+        // is the TV's own location (#117): two decimals (about 1.1 km) are kept, never the exact fix.
+        File dir = tmp.newFolder();
+        Weather.parse(JSON, 5L).at(41.983117, 2.824931).save(dir);
+        String[] p = new String(java.nio.file.Files.readAllBytes(new File(dir, Weather.CACHE).toPath()),
+                java.nio.charset.StandardCharsets.UTF_8).split("\t");
+        assertEquals(7, p.length);
+        assertEquals("41.98", p[5]);
+        assertEquals("2.82", p[6]);
+        assertTrue(Weather.load(dir).isFor(41.983117, 2.824931));   // still the same place for the refetch rule
+    }
+
+    @Test public void aCacheWrittenWithFiveDecimalsStillLoads() throws Exception {
+        File dir = tmp.newFolder();
+        try (FileWriter w = new FileWriter(new File(dir, "weather.cache"))) { w.write("16\t22\t12\t0\t5\t41.98311\t2.82493"); }
+        assertTrue(Weather.load(dir).isFor(41.98311, 2.82493));
+    }
+
     @Test public void aCacheFromBeforeThePlaceWasKeptIsForNoPlace() throws Exception {
         File dir = tmp.newFolder();
         try (FileWriter w = new FileWriter(new File(dir, "weather.cache"))) { w.write("16\t22\t12\t0\t987654321"); }

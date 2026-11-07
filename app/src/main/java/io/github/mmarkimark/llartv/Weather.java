@@ -100,10 +100,14 @@ final class Weather {
     /** "Màx. 22° · Mín. 12°". */
     String range(Strings s) { return s.get(R.string.weather_range, max, min); }
 
-    /** Writes files/weather.cache as one tab-separated line, via a temp file so a reader never sees half of it. */
+    /**
+     * Writes files/weather.cache as one tab-separated line, via a temp file so a reader never sees half of it. The
+     * cache is in external storage, which other apps can read on Android 9 and 10, and in automatic its place is the
+     * TV's own location (#117), so the place is kept to two decimals (about 1.1 km): enough for isFor, never the fix.
+     */
     void save(File dir) throws Exception {
         String line = temp + "\t" + max + "\t" + min + "\t" + code + "\t" + fetchedAt
-                + "\t" + String.format(Locale.ROOT, "%.5f\t%.5f", lat, lon);
+                + "\t" + String.format(Locale.ROOT, "%.2f\t%.2f", lat, lon);
         File tmp = new File(dir, CACHE + ".part");
         try (FileOutputStream out = new FileOutputStream(tmp)) { out.write(line.getBytes(StandardCharsets.UTF_8)); }
         if (!tmp.renameTo(new File(dir, CACHE))) { tmp.delete(); throw new Exception("weather cache rename failed"); }
