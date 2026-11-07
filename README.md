@@ -17,7 +17,7 @@ dock of your favourite apps and a full-screen photo, instead of rows of recommen
 **Available in English, Catalan and Spanish** — choose the interface language in the Almali LlarTV settings or with
 `language=`. The screenshots below show the English interface.
 
-[![Release](https://img.shields.io/badge/release-v1.9-blue)](https://github.com/almali-dev/almali-llartv/releases/tag/v1.9)
+[![Release](https://img.shields.io/badge/release-v1.10-blue)](https://github.com/almali-dev/almali-llartv/releases/tag/v1.10)
 [![CI](https://github.com/almali-dev/almali-llartv/actions/workflows/ci.yml/badge.svg)](https://github.com/almali-dev/almali-llartv/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![Android TV 9+](https://img.shields.io/badge/Android%20TV-9%2B-informational)
@@ -372,11 +372,14 @@ Preferences → Screen saver*.
 
 ## Performance
 
-LlarTV is kept small and fast: the v1.7 APK is 4,227,237 bytes (-0.93% against v1.6: the quote corpora are shorter), with
-foreground Home PSS about 40 MiB on the emulator and about 60 MiB on the reference TV. Screensaver PSS is a different workload. It does no background
+LlarTV is kept small and fast: the v1.10 APK is about 0.8 MB (786,186 bytes from a clean build, shrunk with R8 since
+v1.9), with foreground Home PSS of about 56 MiB on the reference TV (v1.10) and about 43 MiB on the emulator (v1.9 baseline). Screensaver PSS is a different workload. It does no background
 polling. [`scripts/measure.sh`](scripts/measure.sh) records the APK size, the cold start, the Home return and the RAM
 on a connected TV or emulator. The measured baseline and the regression budgets used as release gates are in
-[`docs/performance/baseline-v1.0.md`](docs/performance/baseline-v1.0.md). The [v1.7 comparison](docs/performance/v1.7.md)
+[`docs/performance/baseline-v1.0.md`](docs/performance/baseline-v1.0.md). The [v1.10 comparison](docs/performance/v1.10.md)
+records the reference-TV pairs against the published v1.9 and why its APK is over the size budget, the
+[minified build measurement](docs/performance/minify-v1.8.md) the pairs that made R8 the release build in v1.9, the
+[v1.8 comparison](docs/performance/v1.8.md) the pairs against v1.7, the [v1.7 comparison](docs/performance/v1.7.md)
 records the emulator and reference-TV pairs against the published v1.6, the [v1.6 comparison](docs/performance/v1.6.md)
 the pairs against the published v1.5, the
 [v1.5 comparison](docs/performance/v1.5.md) the earlier emulator and reference-TV pairs against the published v1.4,

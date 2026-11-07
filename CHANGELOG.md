@@ -5,14 +5,24 @@ All notable changes to LlarTV are documented in this file. The format is based o
 
 ## [Unreleased]
 
+## [1.10] - 2026-11-07
+
 ### Added
 
 - Almali LlarTV has its own app icon and Android TV banner (a TV with a dock of apps, from the Almali brand kit),
   instead of the generic Android icon. The README header shows the "LlarTV · by almali" lockup.
 - The weather city can be chosen in the settings: *Ubicació del temps* searches a city by name with Open-Meteo's
-  free geocoding service and lists the matches to pick from. Its first choice, *Automàtic* (`location_auto=on`),
+  free geocoding service and lists the matches to pick from (#110). Its first choice, *Automàtic* (`location_auto=on`),
   follows the TV's Android location and keeps the current city when the TV has none, which many TVs do. The
   default is still Barcelona, and `location` and `location_name` work as before.
+
+### Changed
+
+- The README has a *Minimal mode* section with a screenshot, presenting it as LlarTV's fast mode with the gain
+  measured on the reference TV, and the app icon separates its sections (#113).
+- The APK is 786,186 bytes, 46,864 more than v1.9 (+6.3%), over the +5% budget: about 30.7 KB are the new app icon
+  and banner, and the weather city adds about 14 KB. The overrun is accepted and explained in
+  [docs/performance/v1.10.md](docs/performance/v1.10.md); the baseline is not moved.
 
 ### Fixed
 
@@ -324,7 +334,8 @@ First release.
 - Scripts to install, configure and uninstall LlarTV over ADB: `scripts/install.sh`, `scripts/config.sh` and
   `scripts/uninstall.sh`.
 
-[Unreleased]: https://github.com/almali-dev/almali-llartv/compare/v1.9...HEAD
+[Unreleased]: https://github.com/almali-dev/almali-llartv/compare/v1.10...HEAD
+[1.10]: https://github.com/almali-dev/almali-llartv/compare/v1.9...v1.10
 [1.9]: https://github.com/almali-dev/almali-llartv/compare/v1.8...v1.9
 [1.8]: https://github.com/almali-dev/almali-llartv/compare/v1.7...v1.8
 [1.7]: https://github.com/almali-dev/almali-llartv/compare/v1.6...v1.7
